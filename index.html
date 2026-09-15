@@ -35,11 +35,9 @@ body {
   margin: 0;
   min-height: 100vh;
 
-  background:
-    var(--background);
+  background: var(--background);
 
-  color:
-    var(--text);
+  color: var(--text);
 
   font-family:
     Arial,
@@ -54,48 +52,71 @@ body {
 
   margin: 0 auto;
 
-  padding:
-    20px;
+  padding: 20px;
 }
 
 h1 {
   margin:
     10px 0 5px;
 
-  text-align:
-    center;
+  text-align: center;
 
   font-size:
-    36px;
+    clamp(
+      32px,
+      6vw,
+      46px
+    );
 }
 
 .status {
-  margin-bottom:
-    16px;
+  margin-bottom: 16px;
 
-  text-align:
-    center;
+  text-align: center;
 
-  color:
-    var(--muted);
+  color: var(--muted);
 
-  font-size:
-    17px;
+  font-size: 18px;
+}
+
+.status.open {
+  color: var(--green);
+}
+
+.status.closed {
+  color: #174ea6;
+}
+
+.status.error {
+  color: var(--red);
+}
+
+.closed-message {
+  padding: 15px;
+
+  margin-bottom: 15px;
+
+  border-radius: 12px;
+
+  background: #eef3fe;
+
+  color: #174ea6;
+
+  text-align: center;
+
+  font-weight: 700;
 }
 
 .camera-card {
-  padding:
-    14px;
+  padding: 14px;
 
-  background:
-    white;
+  background: white;
 
   border:
     1px solid
     var(--border);
 
-  border-radius:
-    18px;
+  border-radius: 18px;
 
   box-shadow:
     0 8px 24px
@@ -103,250 +124,229 @@ h1 {
 }
 
 #reader {
-  width:
-    100%;
+  width: 100%;
 
-  overflow:
-    hidden;
+  overflow: hidden;
 
-  border-radius:
-    14px;
+  border-radius: 14px;
+
+  background: #202124;
 }
 
 .start-button {
-  width:
-    100%;
+  width: 100%;
+  min-height: 64px;
 
-  min-height:
-    60px;
+  margin-top: 12px;
 
-  margin-top:
-    12px;
+  border: 0;
+  border-radius: 12px;
 
-  border:
-    0;
+  background: var(--blue);
 
-  border-radius:
-    12px;
+  color: white;
 
-  background:
-    var(--blue);
+  font-size: 21px;
+  font-weight: 700;
 
-  color:
-    white;
+  cursor: pointer;
+}
 
-  font-size:
-    20px;
-
-  font-weight:
-    700;
+.start-button:disabled {
+  opacity: .45;
+  cursor: default;
 }
 
 .instructions {
   margin:
-    15px 0;
+    15px 0 4px;
 
-  text-align:
-    center;
+  text-align: center;
 
-  color:
-    var(--muted);
+  color: var(--muted);
 
-  font-size:
-    16px;
+  font-size: 16px;
 }
 
 .manual {
-  margin-top:
-    18px;
+  margin-top: 18px;
 
-  padding:
-    16px;
+  padding: 16px;
 
-  background:
-    white;
+  background: white;
 
   border:
     1px solid
     var(--border);
 
-  border-radius:
-    16px;
+  border-radius: 16px;
 }
 
 .manual-title {
-  margin-bottom:
-    10px;
+  margin-bottom: 10px;
 
-  text-align:
-    center;
+  text-align: center;
 
-  font-size:
-    15px;
-
-  font-weight:
-    700;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .manual-row {
-  display:
-    grid;
+  display: grid;
 
   grid-template-columns:
     1fr auto;
 
-  gap:
-    8px;
+  gap: 8px;
 }
 
 .manual input {
-  min-width:
-    0;
+  min-width: 0;
 
-  padding:
-    14px;
+  padding: 14px;
 
   border:
     2px solid
     var(--border);
 
-  border-radius:
-    10px;
+  border-radius: 10px;
 
-  text-align:
-    center;
+  text-align: center;
 
   font-size:
-    28px;
+    clamp(
+      25px,
+      7vw,
+      34px
+    );
 
-  font-weight:
-    700;
+  font-weight: 700;
 
-  letter-spacing:
-    4px;
+  letter-spacing: 4px;
+}
+
+.manual input:focus {
+  outline: none;
+  border-color: var(--blue);
 }
 
 .manual button {
   padding:
     0 20px;
 
-  border:
-    0;
+  border: 0;
+  border-radius: 10px;
 
-  border-radius:
-    10px;
+  background: var(--blue);
 
-  background:
-    var(--blue);
+  color: white;
 
-  color:
-    white;
+  font-weight: 700;
 
-  font-weight:
-    700;
+  cursor: pointer;
+}
+
+.manual button:disabled {
+  opacity: .45;
 }
 
 .result-overlay {
-  position:
-    fixed;
+  position: fixed;
 
-  inset:
-    0;
+  inset: 0;
 
-  z-index:
-    100;
+  z-index: 100;
 
-  display:
-    flex;
+  display: flex;
 
-  align-items:
-    center;
+  align-items: center;
+  justify-content: center;
 
-  justify-content:
-    center;
-
-  padding:
-    25px;
+  padding: 25px;
 
   background:
-    rgba(255,255,255,.96);
+    rgba(
+      255,
+      255,
+      255,
+      .96
+    );
 }
 
 .result-box {
-  width:
-    min(
-      500px,
-      100%
-    );
+  width: min(
+    500px,
+    100%
+  );
 
   padding:
-    40px 25px;
+    42px 25px;
 
-  border-radius:
-    22px;
+  border-radius: 22px;
 
-  text-align:
-    center;
+  text-align: center;
 }
 
 .result-box.success {
-  background:
-    #e6f4ea;
+  background: #e6f4ea;
 
-  color:
-    var(--green);
+  color: var(--green);
 }
 
 .result-box.error {
-  background:
-    #fce8e6;
+  background: #fce8e6;
 
-  color:
-    var(--red);
+  color: var(--red);
 }
 
 .result-icon {
-  margin-bottom:
-    10px;
+  margin-bottom: 10px;
 
-  font-size:
-    70px;
+  font-size: 72px;
 }
 
 .result-message {
   font-size:
-    30px;
+    clamp(
+      27px,
+      6vw,
+      38px
+    );
 
-  font-weight:
-    700;
+  font-weight: 700;
+}
+
+.result-detail {
+  margin-top: 8px;
+
+  font-size: 16px;
+  font-weight: 400;
 }
 
 .hidden {
-  display:
-    none !important;
+  display: none !important;
 }
 
-.closed {
-  padding:
-    18px;
+@media
+(max-width: 520px) {
 
-  margin-bottom:
-    15px;
+  .page {
+    padding: 12px;
+  }
 
-  border-radius:
-    12px;
+  .camera-card,
+  .manual {
+    border-radius: 14px;
+  }
 
-  background:
-    #eef3fe;
+  .manual-row {
+    grid-template-columns:
+      1fr;
+  }
 
-  color:
-    #174ea6;
-
-  text-align:
-    center;
-
-  font-weight:
-    700;
+  .manual button {
+    min-height: 52px;
+  }
 }
 
 </style>
@@ -362,16 +362,19 @@ h1 {
     Student Check-In
   </h1>
 
+
   <div
     id="status"
-    class="status">
-    Connecting…
+    class="status"
+  >
+    Connecting to attendance…
   </div>
 
 
   <div
     id="closedMessage"
-    class="closed hidden">
+    class="closed-message hidden"
+  >
     Attendance is currently closed.
   </div>
 
@@ -380,12 +383,16 @@ h1 {
 
     <div id="reader"></div>
 
+
     <button
       id="startCameraButton"
       class="start-button"
-      onclick="startCamera()">
+      onclick="startCamera()"
+      disabled
+    >
       Start Camera
     </button>
+
 
     <div class="instructions">
       Hold your QR card in front of the camera.
@@ -397,8 +404,9 @@ h1 {
   <div class="manual">
 
     <div class="manual-title">
-      Can't scan? Enter your check-in code.
+      Can't scan? Enter your 4-digit check-in code.
     </div>
+
 
     <div class="manual-row">
 
@@ -407,12 +415,18 @@ h1 {
         type="text"
         inputmode="numeric"
         pattern="[0-9]*"
+        maxlength="4"
         autocomplete="off"
         placeholder="4-digit code"
+        disabled
       >
 
+
       <button
-        onclick="manualCheckIn()">
+        id="manualButton"
+        onclick="manualCheckIn()"
+        disabled
+      >
         Check In
       </button>
 
@@ -425,21 +439,33 @@ h1 {
 
 <div
   id="resultOverlay"
-  class="result-overlay hidden">
+  class="result-overlay hidden"
+>
 
   <div
     id="resultBox"
-    class="result-box success">
+    class="result-box success"
+  >
 
     <div
       id="resultIcon"
-      class="result-icon">
+      class="result-icon"
+    >
       ✓
     </div>
 
+
     <div
       id="resultMessage"
-      class="result-message">
+      class="result-message"
+    >
+    </div>
+
+
+    <div
+      id="resultDetail"
+      class="result-detail"
+    >
     </div>
 
   </div>
@@ -447,40 +473,16 @@ h1 {
 </div>
 
 
-
-
 <script>
 
-/*
- * Read the private configuration
- * from the URL fragment.
- *
- * The fragment is not sent to GitHub.
- */
-const fragment =
-  new URLSearchParams(
-    window.location.hash
-      .substring(1)
-  );
-
-
-const BACKEND_URL =
-  fragment.get(
-    'backend'
-  );
-
-
-const KIOSK_TOKEN =
-  fragment.get(
-    'k'
-  );
-
+let connected =
+  false;
 
 let attendanceOpen =
   false;
 
-let connected =
-  false;
+let attendanceDate =
+  '';
 
 let scanner =
   null;
@@ -494,302 +496,335 @@ let busy =
 let requestCounter =
   0;
 
+let pendingRequestId =
+  null;
 
-/*
- * Basic configuration check.
- */
-if (
-  !BACKEND_URL ||
-  !KIOSK_TOKEN
-) {
-
-  document.getElementById(
-    'status'
-  ).textContent =
-    'This kiosk link is incomplete.';
-
-} else {
-
-  checkAttendanceStatus();
-}
+let lastStatusReceivedAt =
+  0;
 
 
 /*
- * JSONP REQUEST
- *
- * This avoids CORS and avoids
- * the Apps Script iframe sandbox.
+ * This page must be opened by
+ * the Google Apps Script kiosk.
  */
-function apiRequest(
-  action,
-  params = {}
-) {
-
-  return new Promise(
-    (resolve, reject) => {
-
-      const callbackName =
-        '__attendanceCallback_' +
-        Date.now() +
-        '_' +
-        (++requestCounter);
-
-
-      const script =
-        document.createElement(
-          'script'
-        );
-
-
-      let finished =
-        false;
-
-
-      const cleanup =
-        () => {
-
-          if (finished) {
-            return;
-          }
-
-          finished = true;
-
-
-          if (
-            script.parentNode
-          ) {
-            script.parentNode
-              .removeChild(
-                script
-              );
-          }
-
-
-          try {
-            delete window[
-              callbackName
-            ];
-          } catch (error) {
-            window[
-              callbackName
-            ] = undefined;
-          }
-        };
-
-
-      window[
-        callbackName
-      ] =
-        response => {
-
-          cleanup();
-
-          resolve(
-            response || {}
-          );
-        };
-
-
-      const query =
-        new URLSearchParams();
-
-
-      query.set(
-        'api',
-        action
-      );
-
-
-      query.set(
-        'k',
-        KIOSK_TOKEN
-      );
-
-
-      query.set(
-        'callback',
-        callbackName
-      );
-
-
-      query.set(
-        '_',
-        Date.now()
-      );
-
-
-      Object.keys(
-        params
-      ).forEach(
-        key => {
-
-          query.set(
-            key,
-            String(
-              params[key]
-            )
-          );
-        }
-      );
-
-
-      script.src =
-        BACKEND_URL +
-        '?' +
-        query.toString();
-
-
-      script.onerror =
-        () => {
-
-          cleanup();
-
-          reject(
-            new Error(
-              'Could not reach attendance.'
-            )
-          );
-        };
-
-
-      document.head
-        .appendChild(
-          script
-        );
-
-
-      /*
-       * Don't leave the screen saying
-       * Connecting forever.
-       */
-      setTimeout(
-        () => {
-
-          if (!finished) {
-
-            cleanup();
-
-            reject(
-              new Error(
-                'Attendance connection timed out.'
-              )
-            );
-          }
-
-        },
-        8000
-      );
-    }
-  );
-}
-
-
-/*
- * CHECK WHETHER ATTENDANCE IS OPEN
- */
-async function checkAttendanceStatus() {
-
-  if (
-    !BACKEND_URL ||
-    !KIOSK_TOKEN ||
-    busy
-  ) {
-    return;
-  }
-
+function hasOpener() {
 
   try {
 
-    const response =
-      await apiRequest(
-        'status'
-      );
+    return Boolean(
+      window.opener &&
+      !window.opener.closed
+    );
+
+  } catch (error) {
+
+    return Boolean(
+      window.opener
+    );
+  }
+}
 
 
+/*
+ * SEND MESSAGE TO GOOGLE KIOSK
+ */
+function sendToKiosk(
+  message
+) {
+
+  if (
+    !hasOpener()
+  ) {
+    return false;
+  }
+
+
+  /*
+   * The Apps Script kiosk validates
+   * that messages came from this
+   * GitHub scanner domain.
+   *
+   * We use * here because Google's
+   * Apps Script serving origin can vary.
+   */
+  window.opener.postMessage(
+    message,
+    '*'
+  );
+
+
+  return true;
+}
+
+
+/*
+ * RECEIVE RESPONSES FROM
+ * GOOGLE APPS SCRIPT KIOSK
+ */
+window.addEventListener(
+  'message',
+  event => {
+
+    /*
+     * Only accept messages from the
+     * exact window that opened us.
+     */
     if (
-      !response.success
+      event.source !==
+      window.opener
+    ) {
+      return;
+    }
+
+
+    const data =
+      event.data || {};
+
+
+    /*
+     * ATTENDANCE STATUS
+     */
+    if (
+      data.type ===
+      'ATTENDANCE_STATUS'
     ) {
 
       connected =
-        false;
+        true;
 
       attendanceOpen =
-        false;
+        Boolean(
+          data.open
+        );
+
+      attendanceDate =
+        String(
+          data.date || ''
+        );
+
+      lastStatusReceivedAt =
+        Date.now();
 
 
-      document.getElementById(
-        'status'
-      ).textContent =
-        response.message ||
-        'Unable to connect to attendance.';
+      renderAttendanceStatus();
 
       return;
     }
 
 
-    connected =
-      true;
-
-
-    attendanceOpen =
-      Boolean(
-        response.open
-      );
-
-
-    const status =
-      document.getElementById(
-        'status'
-      );
-
-
-    const closed =
-      document.getElementById(
-        'closedMessage'
-      );
-
-
+    /*
+     * STUDENT CHECK-IN RESULT
+     */
     if (
-      attendanceOpen
+      data.type ===
+      'CHECKIN_RESULT'
     ) {
 
-      status.textContent =
-        response.date ||
-        'Attendance is open.';
+      if (
+        !pendingRequestId ||
+        data.requestId !==
+          pendingRequestId
+      ) {
+        return;
+      }
 
 
-      closed.classList.add(
-        'hidden'
-      );
-
-    } else {
-
-      status.textContent =
-        'Attendance Closed';
+      pendingRequestId =
+        null;
 
 
-      closed.classList.remove(
-        'hidden'
-      );
+      if (
+        data.success
+      ) {
+
+        const studentName =
+          String(
+            data.studentName || ''
+          );
+
+
+        if (
+          data.alreadyPresent
+        ) {
+
+          showResult(
+            true,
+
+            studentName ||
+            'Already Checked In',
+
+            'Already checked in'
+          );
+
+        } else {
+
+          showResult(
+            true,
+
+            studentName ||
+            'Checked In',
+
+            'Present ✓'
+          );
+        }
+
+      } else {
+
+        showResult(
+          false,
+
+          data.message ||
+          'Code not recognized.',
+
+          ''
+        );
+      }
     }
+  }
+);
 
 
-  } catch (error) {
+/*
+ * UPDATE OPEN / CLOSED DISPLAY
+ */
+function renderAttendanceStatus() {
 
-    connected =
-      false;
-
-
+  const status =
     document.getElementById(
       'status'
-    ).textContent =
+    );
+
+
+  const closed =
+    document.getElementById(
+      'closedMessage'
+    );
+
+
+  const cameraButton =
+    document.getElementById(
+      'startCameraButton'
+    );
+
+
+  const manualInput =
+    document.getElementById(
+      'manualCode'
+    );
+
+
+  const manualButton =
+    document.getElementById(
+      'manualButton'
+    );
+
+
+  if (
+    !connected
+  ) {
+
+    status.className =
+      'status error';
+
+    status.textContent =
       'Unable to connect to attendance.';
+
+
+    cameraButton.disabled =
+      true;
+
+    manualInput.disabled =
+      true;
+
+    manualButton.disabled =
+      true;
+
+    return;
+  }
+
+
+  if (
+    attendanceOpen
+  ) {
+
+    status.className =
+      'status open';
+
+
+    status.textContent =
+      attendanceDate
+        ? attendanceDate
+        : 'Attendance is open.';
+
+
+    closed.classList.add(
+      'hidden'
+    );
+
+
+    cameraButton.disabled =
+      false;
+
+    manualInput.disabled =
+      false;
+
+    manualButton.disabled =
+      false;
+
+  } else {
+
+    status.className =
+      'status closed';
+
+    status.textContent =
+      'Attendance Closed';
+
+
+    closed.classList.remove(
+      'hidden'
+    );
+
+
+    cameraButton.disabled =
+      true;
+
+    manualInput.disabled =
+      true;
+
+    manualButton.disabled =
+      true;
   }
 }
 
 
 /*
- * START CAMERA
+ * ASK THE GOOGLE KIOSK
+ * FOR CURRENT STATUS
+ */
+function requestStatus() {
+
+  if (
+    !hasOpener()
+  ) {
+
+    connected =
+      false;
+
+    renderAttendanceStatus();
+
+    return;
+  }
+
+
+  sendToKiosk({
+    type:
+      'REQUEST_STATUS'
+  });
+}
+
+
+/*
+ * START QR CAMERA
  */
 async function startCamera() {
 
@@ -801,11 +836,12 @@ async function startCamera() {
 
 
   if (
-    !connected
+    !connected ||
+    !attendanceOpen
   ) {
 
     alert(
-      'Attendance is not connected yet. Refresh the kiosk and try again.'
+      'Attendance is not open.'
     );
 
     return;
@@ -862,8 +898,8 @@ async function startCamera() {
 
       () => {
         /*
-         * Normal camera frames without
-         * a QR code are ignored.
+         * Normal camera frames
+         * without a QR are ignored.
          */
       }
     );
@@ -890,13 +926,27 @@ async function startCamera() {
 
 
 /*
- * QR OR MANUAL CHECK-IN
+ * SUBMIT QR OR MANUAL CODE
  */
-async function processCode(
+function processCode(
   value
 ) {
 
   if (busy) {
+    return;
+  }
+
+
+  if (
+    !connected
+  ) {
+
+    showResult(
+      false,
+      'Not Connected',
+      'Return to the attendance kiosk and reopen the scanner.'
+    );
+
     return;
   }
 
@@ -907,7 +957,8 @@ async function processCode(
 
     showResult(
       false,
-      'Attendance is closed.'
+      'Attendance Closed',
+      ''
     );
 
     return;
@@ -931,52 +982,84 @@ async function processCode(
     true;
 
 
-  try {
-
-    const response =
-      await apiRequest(
-        'checkin',
-        {
-          code: code
-        }
-      );
+  const requestId =
+    'checkin_' +
+    Date.now() +
+    '_' +
+    (++requestCounter);
 
 
-    if (
-      response.success
-    ) {
-
-      showResult(
-        true,
-
-        response.alreadyPresent
-          ? 'Already Checked In'
-          : 'Checked In'
-      );
-
-    } else {
-
-      showResult(
-        false,
-
-        response.message ||
-        'Code not recognized.'
-      );
-    }
+  pendingRequestId =
+    requestId;
 
 
-  } catch (error) {
+  const sent =
+    sendToKiosk({
+      type:
+        'CHECKIN',
+
+      requestId:
+        requestId,
+
+      code:
+        code
+    });
+
+
+  if (!sent) {
+
+    pendingRequestId =
+      null;
+
+    busy =
+      false;
+
 
     showResult(
       false,
-      'Unable to reach attendance.'
+      'Not Connected',
+      'Unable to reach the attendance kiosk.'
     );
+
+    return;
   }
+
+
+  /*
+   * Avoid remaining stuck forever
+   * if Apps Script never responds.
+   */
+  setTimeout(
+    () => {
+
+      if (
+        busy &&
+        pendingRequestId ===
+          requestId
+      ) {
+
+        pendingRequestId =
+          null;
+
+        busy =
+          false;
+
+
+        showResult(
+          false,
+          'Check-In Timed Out',
+          'Please try again.'
+        );
+      }
+
+    },
+    10000
+  );
 }
 
 
 /*
- * MANUAL 4-DIGIT FALLBACK
+ * MANUAL FALLBACK
  */
 function manualCheckIn() {
 
@@ -997,6 +1080,11 @@ function manualCheckIn() {
     '';
 
 
+  if (!code) {
+    return;
+  }
+
+
   processCode(
     code
   );
@@ -1004,11 +1092,12 @@ function manualCheckIn() {
 
 
 /*
- * RESULT SCREEN
+ * SUCCESS / ERROR SCREEN
  */
 function showResult(
   successful,
-  message
+  message,
+  detail
 ) {
 
   const overlay =
@@ -1029,9 +1118,15 @@ function showResult(
     );
 
 
-  const text =
+  const messageText =
     document.getElementById(
       'resultMessage'
+    );
+
+
+  const detailText =
+    document.getElementById(
+      'resultDetail'
     );
 
 
@@ -1047,8 +1142,12 @@ function showResult(
       : '✕';
 
 
-  text.textContent =
+  messageText.textContent =
     message;
+
+
+  detailText.textContent =
+    detail || '';
 
 
   overlay.classList.remove(
@@ -1069,41 +1168,74 @@ function showResult(
 
 
       /*
-       * Refresh open/closed status
-       * after every check-in.
+       * Make sure teacher has not
+       * closed attendance.
        */
-      checkAttendanceStatus();
+      requestStatus();
 
     },
 
     successful
       ? 900
-      : 1300
+      : 1400
   );
 }
 
 
 /*
- * Keep fallback numeric.
+ * KEEP MANUAL ENTRY NUMERIC
  */
-document.getElementById(
-  'manualCode'
-).addEventListener(
+const manualInput =
+  document.getElementById(
+    'manualCode'
+  );
+
+
+manualInput.addEventListener(
   'input',
   event => {
 
     event.target.value =
-      event.target.value.replace(
-        /\D/g,
-        ''
+      event.target.value
+        .replace(
+          /\D/g,
+          ''
+        )
+        .slice(
+          0,
+          4
+        );
+
+
+    /*
+     * Generated codes are 4 digits,
+     * so manual fallback can submit
+     * automatically as well.
+     */
+    if (
+      event.target.value.length ===
+        4 &&
+      attendanceOpen &&
+      !busy
+    ) {
+
+      const code =
+        event.target.value;
+
+
+      event.target.value =
+        '';
+
+
+      processCode(
+        code
       );
+    }
   }
 );
 
 
-document.getElementById(
-  'manualCode'
-).addEventListener(
+manualInput.addEventListener(
   'keydown',
   event => {
 
@@ -1121,12 +1253,70 @@ document.getElementById(
 
 
 /*
- * Keep checking whether teacher
- * has opened or closed attendance.
+ * INITIAL CONNECTION
+ */
+if (
+  hasOpener()
+) {
+
+  sendToKiosk({
+    type:
+      'SCANNER_READY'
+  });
+
+
+  requestStatus();
+
+} else {
+
+  connected =
+    false;
+
+
+  document.getElementById(
+    'status'
+  ).className =
+    'status error';
+
+
+  document.getElementById(
+    'status'
+  ).textContent =
+    'Open this scanner from the attendance kiosk.';
+}
+
+
+/*
+ * KEEP OPEN/CLOSED STATE CURRENT
  */
 setInterval(
-  checkAttendanceStatus,
+  requestStatus,
   3000
+);
+
+
+/*
+ * Detect if the Google kiosk tab
+ * was closed after scanner opened.
+ */
+setInterval(
+  () => {
+
+    if (
+      !hasOpener()
+    ) {
+
+      connected =
+        false;
+
+      attendanceOpen =
+        false;
+
+      renderAttendanceStatus();
+    }
+
+  },
+  2000
 );
 
 </script>
