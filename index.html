@@ -447,10 +447,6 @@ h1 {
 </div>
 
 
-<iframe
-  id="attendanceBridge"
-  style="display:none;">
-</iframe>
 
 
 <script>
@@ -459,11 +455,7 @@ h1 {
  * Read the private configuration
  * from the URL fragment.
  *
- * Example:
- *
- * #backend=APPS_SCRIPT_URL&k=TOKEN
- *
- * Fragments are not sent to GitHub.
+ * The fragment is not sent to GitHub.
  */
 const fragment =
   new URLSearchParams(
@@ -471,10 +463,12 @@ const fragment =
       .substring(1)
   );
 
+
 const BACKEND_URL =
   fragment.get(
     'backend'
   );
+
 
 const KIOSK_TOKEN =
   fragment.get(
@@ -482,10 +476,10 @@ const KIOSK_TOKEN =
   );
 
 
-let bridgeReady =
+let attendanceOpen =
   false;
 
-let attendanceOpen =
+let connected =
   false;
 
 let scanner =
@@ -502,7 +496,7 @@ let requestCounter =
 
 
 /*
- * Verify configuration.
+ * Basic configuration check.
  */
 if (
   !BACKEND_URL ||
@@ -516,202 +510,286 @@ if (
 
 } else {
 
-  const bridge =
-    document.getElementById(
-      'attendanceBridge'
-    );
-
-  bridge.src =
-    BACKEND_URL +
-    '?bridge=1&k=' +
-    encodeURIComponent(
-      KIOSK_TOKEN
-    );
+  checkAttendanceStatus();
 }
 
 
 /*
- * Receive messages from the
- * Apps Script bridge.
+ * JSONP REQUEST
+ *
+ * This avoids CORS and avoids
+ * the Apps Script iframe sandbox.
  */
-window.addEventListener(
-  'message',
-  event => {
-
-    const data =
-      event.data || {};
-
-
-    if (
-      data.type ===
-      'ATTENDANCE_BRIDGE_READY'
-    ) {
-
-      bridgeReady =
-        true;
-
-      checkAttendanceStatus();
-
-      return;
-    }
-
-
-    if (
-      data.type ===
-      'ATTENDANCE_STATUS_RESULT'
-    ) {
-
-      const state =
-        data.state || {};
-
-      attendanceOpen =
-        Boolean(
-          state.open
-        );
-
-
-      const status =
-        document.getElementById(
-          'status'
-        );
-
-
-      const closed =
-        document.getElementById(
-          'closedMessage'
-        );
-
-
-      if (
-        attendanceOpen
-      ) {
-
-        status.textContent =
-          state.date
-            ? state.date
-            : 'Attendance is open.';
-
-        closed.classList.add(
-          'hidden'
-        );
-
-      } else {
-
-        status.textContent =
-          'Attendance Closed';
-
-        closed.classList.remove(
-          'hidden'
-        );
-      }
-
-      return;
-    }
-
-
-    if (
-      data.type ===
-      'STUDENT_CHECKIN_RESULT'
-    ) {
-
-      if (
-        !busy
-      ) {
-        return;
-      }
-
-
-      if (
-        data.success
-      ) {
-
-        const message =
-          data.result &&
-          data.result.message
-            ? data.result.message
-            : 'Checked in';
-
-        showResult(
-          true,
-          message
-        );
-
-      } else {
-
-        showResult(
-          false,
-          data.message ||
-          'Code not recognized.'
-        );
-      }
-    }
-  }
-);
-
-
-/*
- * Send message into hidden
- * Apps Script bridge.
- */
-function sendToBridge(
-  message
+function apiRequest(
+  action,
+  params = {}
 ) {
 
-  if (
-    !bridgeReady
-  ) {
-    return false;
-  }
+  return new Promise(
+    (resolve, reject) => {
+
+      const callbackName =
+        '__attendanceCallback_' +
+        Date.now() +
+        '_' +
+        (++requestCounter);
 
 
-  const frame =
-    document.getElementById(
-      'attendanceBridge'
-    );
+      const script =
+        document.createElement(
+          'script'
+        );
 
 
-  if (
-    !frame.contentWindow
-  ) {
-    return false;
-  }
+      let finished =
+        false;
 
 
-  frame.contentWindow.postMessage(
-    message,
-    '*'
+      const cleanup =
+        () => {
+
+          if (finished) {
+            return;
+          }
+
+          finished = true;
+
+
+          if (
+            script.parentNode
+          ) {
+            script.parentNode
+              .removeChild(
+                script
+              );
+          }
+
+
+          try {
+            delete window[
+              callbackName
+            ];
+          } catch (error) {
+            window[
+              callbackName
+            ] = undefined;
+          }
+        };
+
+
+      window[
+        callbackName
+      ] =
+        response => {
+
+          cleanup();
+
+          resolve(
+            response || {}
+          );
+        };
+
+
+      const query =
+        new URLSearchParams();
+
+
+      query.set(
+        'api',
+        action
+      );
+
+
+      query.set(
+        'k',
+        KIOSK_TOKEN
+      );
+
+
+      query.set(
+        'callback',
+        callbackName
+      );
+
+
+      query.set(
+        '_',
+        Date.now()
+      );
+
+
+      Object.keys(
+        params
+      ).forEach(
+        key => {
+
+          query.set(
+            key,
+            String(
+              params[key]
+            )
+          );
+        }
+      );
+
+
+      script.src =
+        BACKEND_URL +
+        '?' +
+        query.toString();
+
+
+      script.onerror =
+        () => {
+
+          cleanup();
+
+          reject(
+            new Error(
+              'Could not reach attendance.'
+            )
+          );
+        };
+
+
+      document.head
+        .appendChild(
+          script
+        );
+
+
+      /*
+       * Don't leave the screen saying
+       * Connecting forever.
+       */
+      setTimeout(
+        () => {
+
+          if (!finished) {
+
+            cleanup();
+
+            reject(
+              new Error(
+                'Attendance connection timed out.'
+              )
+            );
+          }
+
+        },
+        8000
+      );
+    }
   );
-
-
-  return true;
 }
 
 
 /*
- * Check whether teacher has
- * started attendance.
+ * CHECK WHETHER ATTENDANCE IS OPEN
  */
-function checkAttendanceStatus() {
+async function checkAttendanceStatus() {
 
   if (
-    !bridgeReady
+    !BACKEND_URL ||
+    !KIOSK_TOKEN ||
+    busy
   ) {
     return;
   }
 
 
-  sendToBridge({
-    type:
-      'ATTENDANCE_STATUS'
-  });
+  try {
+
+    const response =
+      await apiRequest(
+        'status'
+      );
+
+
+    if (
+      !response.success
+    ) {
+
+      connected =
+        false;
+
+      attendanceOpen =
+        false;
+
+
+      document.getElementById(
+        'status'
+      ).textContent =
+        response.message ||
+        'Unable to connect to attendance.';
+
+      return;
+    }
+
+
+    connected =
+      true;
+
+
+    attendanceOpen =
+      Boolean(
+        response.open
+      );
+
+
+    const status =
+      document.getElementById(
+        'status'
+      );
+
+
+    const closed =
+      document.getElementById(
+        'closedMessage'
+      );
+
+
+    if (
+      attendanceOpen
+    ) {
+
+      status.textContent =
+        response.date ||
+        'Attendance is open.';
+
+
+      closed.classList.add(
+        'hidden'
+      );
+
+    } else {
+
+      status.textContent =
+        'Attendance Closed';
+
+
+      closed.classList.remove(
+        'hidden'
+      );
+    }
+
+
+  } catch (error) {
+
+    connected =
+      false;
+
+
+    document.getElementById(
+      'status'
+    ).textContent =
+      'Unable to connect to attendance.';
+  }
 }
 
 
 /*
- * Start back camera.
- *
- * iPad will ask for camera
- * permission the first time.
+ * START CAMERA
  */
 async function startCamera() {
 
@@ -723,11 +801,11 @@ async function startCamera() {
 
 
   if (
-    !bridgeReady
+    !connected
   ) {
 
     alert(
-      'Attendance is still connecting. Try again in a moment.'
+      'Attendance is not connected yet. Refresh the kiosk and try again.'
     );
 
     return;
@@ -784,7 +862,8 @@ async function startCamera() {
 
       () => {
         /*
-         * Ignore normal scan misses.
+         * Normal camera frames without
+         * a QR code are ignored.
          */
       }
     );
@@ -811,10 +890,9 @@ async function startCamera() {
 
 
 /*
- * Send scanned/manual code
- * to Apps Script.
+ * QR OR MANUAL CHECK-IN
  */
-function processCode(
+async function processCode(
   value
 ) {
 
@@ -853,38 +931,52 @@ function processCode(
     true;
 
 
-  const requestId =
-    ++requestCounter;
+  try {
+
+    const response =
+      await apiRequest(
+        'checkin',
+        {
+          code: code
+        }
+      );
 
 
-  const sent =
-    sendToBridge({
-      type:
-        'STUDENT_CHECKIN',
+    if (
+      response.success
+    ) {
 
-      requestId:
-        requestId,
+      showResult(
+        true,
 
-      code:
-        code
-    });
+        response.alreadyPresent
+          ? 'Already Checked In'
+          : 'Checked In'
+      );
+
+    } else {
+
+      showResult(
+        false,
+
+        response.message ||
+        'Code not recognized.'
+      );
+    }
 
 
-  if (!sent) {
-
-    busy =
-      false;
+  } catch (error) {
 
     showResult(
       false,
-      'Unable to connect to attendance.'
+      'Unable to reach attendance.'
     );
   }
 }
 
 
 /*
- * Manual numeric fallback.
+ * MANUAL 4-DIGIT FALLBACK
  */
 function manualCheckIn() {
 
@@ -912,7 +1004,7 @@ function manualCheckIn() {
 
 
 /*
- * Success/error display.
+ * RESULT SCREEN
  */
 function showResult(
   successful,
@@ -964,11 +1056,6 @@ function showResult(
   );
 
 
-  /*
-   * Prevent the camera from repeatedly
-   * scanning the same card while the
-   * result is being shown.
-   */
   setTimeout(
     () => {
 
@@ -976,8 +1063,16 @@ function showResult(
         'hidden'
       );
 
+
       busy =
         false;
+
+
+      /*
+       * Refresh open/closed status
+       * after every check-in.
+       */
+      checkAttendanceStatus();
 
     },
 
@@ -989,7 +1084,7 @@ function showResult(
 
 
 /*
- * Numeric fallback stays numeric.
+ * Keep fallback numeric.
  */
 document.getElementById(
   'manualCode'
@@ -1026,7 +1121,8 @@ document.getElementById(
 
 
 /*
- * Refresh open/closed state.
+ * Keep checking whether teacher
+ * has opened or closed attendance.
  */
 setInterval(
   checkAttendanceStatus,
