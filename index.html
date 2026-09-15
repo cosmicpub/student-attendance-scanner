@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+>
+
+<title>Student Check-In</title>
+
+<script
+  src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js">
+</script>
+
+<style>
+
+:root {
+  --blue: #1a73e8;
+  --green: #137333;
+  --red: #b3261e;
+  --text: #202124;
+  --muted: #5f6368;
+  --background: #f6f8fb;
+  --border: #dadce0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+
+  background:
+    var(--background);
+
+  color:
+    var(--text);
+
+  font-family:
+    Arial,
+    sans-serif;
+}
+
+.page {
+  width: min(
+    650px,
+    100%
+  );
+
+  margin: 0 auto;
+
+  padding:
+    20px;
+}
+
+h1 {
+  margin:
+    10px 0 5px;
+
+  text-align:
+    center;
+
+  font-size:
+    36px;
+}
+
+.status {
+  margin-bottom:
+    16px;
+
+  text-align:
+    center;
+
+  color:
+    var(--muted);
+
+  font-size:
+    17px;
+}
+
+.camera-card {
+  padding:
+    14px;
+
+  background:
+    white;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:
+    18px;
+
+  box-shadow:
+    0 8px 24px
+    rgba(0,0,0,.07);
+}
+
+#reader {
+  width:
+    100%;
+
+  overflow:
+    hidden;
+
+  border-radius:
+    14px;
+}
+
+.start-button {
+  width:
+    100%;
+
+  min-height:
+    60px;
+
+  margin-top:
+    12px;
+
+  border:
+    0;
+
+  border-radius:
+    12px;
+
+  background:
+    var(--blue);
+
+  color:
+    white;
+
+  font-size:
+    20px;
+
+  font-weight:
+    700;
+}
+
+.instructions {
+  margin:
+    15px 0;
+
+  text-align:
+    center;
+
+  color:
+    var(--muted);
+
+  font-size:
+    16px;
+}
+
+.manual {
+  margin-top:
+    18px;
+
+  padding:
+    16px;
+
+  background:
+    white;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:
+    16px;
+}
+
+.manual-title {
+  margin-bottom:
+    10px;
+
+  text-align:
+    center;
+
+  font-size:
+    15px;
+
+  font-weight:
+    700;
+}
+
+.manual-row {
+  display:
+    grid;
+
+  grid-template-columns:
+    1fr auto;
+
+  gap:
+    8px;
+}
+
+.manual input {
+  min-width:
+    0;
+
+  padding:
+    14px;
+
+  border:
+    2px solid
+    var(--border);
+
+  border-radius:
+    10px;
+
+  text-align:
+    center;
+
+  font-size:
+    28px;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    4px;
+}
+
+.manual button {
+  padding:
+    0 20px;
+
+  border:
+    0;
+
+  border-radius:
+    10px;
+
+  background:
+    var(--blue);
+
+  color:
+    white;
+
+  font-weight:
+    700;
+}
+
+.result-overlay {
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  z-index:
+    100;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    25px;
+
+  background:
+    rgba(255,255,255,.96);
+}
+
+.result-box {
+  width:
+    min(
+      500px,
+      100%
+    );
+
+  padding:
+    40px 25px;
+
+  border-radius:
+    22px;
+
+  text-align:
+    center;
+}
+
+.result-box.success {
+  background:
+    #e6f4ea;
+
+  color:
+    var(--green);
+}
+
+.result-box.error {
+  background:
+    #fce8e6;
+
+  color:
+    var(--red);
+}
+
+.result-icon {
+  margin-bottom:
+    10px;
+
+  font-size:
+    70px;
+}
+
+.result-message {
+  font-size:
+    30px;
+
+  font-weight:
+    700;
+}
+
+.hidden {
+  display:
+    none !important;
+}
+
+.closed {
+  padding:
+    18px;
+
+  margin-bottom:
+    15px;
+
+  border-radius:
+    12px;
+
+  background:
+    #eef3fe;
+
+  color:
+    #174ea6;
+
+  text-align:
+    center;
+
+  font-weight:
+    700;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="page">
+
+  <h1>
+    Student Check-In
+  </h1>
+
+  <div
+    id="status"
+    class="status">
+    Connecting…
+  </div>
+
+
+  <div
+    id="closedMessage"
+    class="closed hidden">
+    Attendance is currently closed.
+  </div>
+
+
+  <div class="camera-card">
+
+    <div id="reader"></div>
+
+    <button
+      id="startCameraButton"
+      class="start-button"
+      onclick="startCamera()">
+      Start Camera
+    </button>
+
+    <div class="instructions">
+      Hold your QR card in front of the camera.
+    </div>
+
+  </div>
+
+
+  <div class="manual">
+
+    <div class="manual-title">
+      Can't scan? Enter your check-in code.
+    </div>
+
+    <div class="manual-row">
+
+      <input
+        id="manualCode"
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        autocomplete="off"
+        placeholder="4-digit code"
+      >
+
+      <button
+        onclick="manualCheckIn()">
+        Check In
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div
+  id="resultOverlay"
+  class="result-overlay hidden">
+
+  <div
+    id="resultBox"
+    class="result-box success">
+
+    <div
+      id="resultIcon"
+      class="result-icon">
+      ✓
+    </div>
+
+    <div
+      id="resultMessage"
+      class="result-message">
+    </div>
+
+  </div>
+
+</div>
+
+
+<iframe
+  id="attendanceBridge"
+  style="display:none;">
+</iframe>
+
+
+<script>
+
+/*
+ * Read the private configuration
+ * from the URL fragment.
+ *
+ * Example:
+ *
+ * #backend=APPS_SCRIPT_URL&k=TOKEN
+ *
+ * Fragments are not sent to GitHub.
+ */
+const fragment =
+  new URLSearchParams(
+    window.location.hash
+      .substring(1)
+  );
+
+const BACKEND_URL =
+  fragment.get(
+    'backend'
+  );
+
+const KIOSK_TOKEN =
+  fragment.get(
+    'k'
+  );
+
+
+let bridgeReady =
+  false;
+
+let attendanceOpen =
+  false;
+
+let scanner =
+  null;
+
+let cameraStarted =
+  false;
+
+let busy =
+  false;
+
+let requestCounter =
+  0;
+
+
+/*
+ * Verify configuration.
+ */
+if (
+  !BACKEND_URL ||
+  !KIOSK_TOKEN
+) {
+
+  document.getElementById(
+    'status'
+  ).textContent =
+    'This kiosk link is incomplete.';
+
+} else {
+
+  const bridge =
+    document.getElementById(
+      'attendanceBridge'
+    );
+
+  bridge.src =
+    BACKEND_URL +
+    '?bridge=1&k=' +
+    encodeURIComponent(
+      KIOSK_TOKEN
+    );
+}
+
+
+/*
+ * Receive messages from the
+ * Apps Script bridge.
+ */
+window.addEventListener(
+  'message',
+  event => {
+
+    const data =
+      event.data || {};
+
+
+    if (
+      data.type ===
+      'ATTENDANCE_BRIDGE_READY'
+    ) {
+
+      bridgeReady =
+        true;
+
+      checkAttendanceStatus();
+
+      return;
+    }
+
+
+    if (
+      data.type ===
+      'ATTENDANCE_STATUS_RESULT'
+    ) {
+
+      const state =
+        data.state || {};
+
+      attendanceOpen =
+        Boolean(
+          state.open
+        );
+
+
+      const status =
+        document.getElementById(
+          'status'
+        );
+
+
+      const closed =
+        document.getElementById(
+          'closedMessage'
+        );
+
+
+      if (
+        attendanceOpen
+      ) {
+
+        status.textContent =
+          state.date
+            ? state.date
+            : 'Attendance is open.';
+
+        closed.classList.add(
+          'hidden'
+        );
+
+      } else {
+
+        status.textContent =
+          'Attendance Closed';
+
+        closed.classList.remove(
+          'hidden'
+        );
+      }
+
+      return;
+    }
+
+
+    if (
+      data.type ===
+      'STUDENT_CHECKIN_RESULT'
+    ) {
+
+      if (
+        !busy
+      ) {
+        return;
+      }
+
+
+      if (
+        data.success
+      ) {
+
+        const message =
+          data.result &&
+          data.result.message
+            ? data.result.message
+            : 'Checked in';
+
+        showResult(
+          true,
+          message
+        );
+
+      } else {
+
+        showResult(
+          false,
+          data.message ||
+          'Code not recognized.'
+        );
+      }
+    }
+  }
+);
+
+
+/*
+ * Send message into hidden
+ * Apps Script bridge.
+ */
+function sendToBridge(
+  message
+) {
+
+  if (
+    !bridgeReady
+  ) {
+    return false;
+  }
+
+
+  const frame =
+    document.getElementById(
+      'attendanceBridge'
+    );
+
+
+  if (
+    !frame.contentWindow
+  ) {
+    return false;
+  }
+
+
+  frame.contentWindow.postMessage(
+    message,
+    '*'
+  );
+
+
+  return true;
+}
+
+
+/*
+ * Check whether teacher has
+ * started attendance.
+ */
+function checkAttendanceStatus() {
+
+  if (
+    !bridgeReady
+  ) {
+    return;
+  }
+
+
+  sendToBridge({
+    type:
+      'ATTENDANCE_STATUS'
+  });
+}
+
+
+/*
+ * Start back camera.
+ *
+ * iPad will ask for camera
+ * permission the first time.
+ */
+async function startCamera() {
+
+  if (
+    cameraStarted
+  ) {
+    return;
+  }
+
+
+  if (
+    !bridgeReady
+  ) {
+
+    alert(
+      'Attendance is still connecting. Try again in a moment.'
+    );
+
+    return;
+  }
+
+
+  try {
+
+    scanner =
+      new Html5Qrcode(
+        'reader'
+      );
+
+
+    await scanner.start(
+
+      {
+        facingMode:
+          'environment'
+      },
+
+      {
+        fps:
+          10,
+
+        qrbox: {
+          width:
+            260,
+
+          height:
+            260
+        },
+
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats
+            .QR_CODE
+        ]
+      },
+
+      decodedText => {
+
+        if (
+          busy ||
+          !attendanceOpen
+        ) {
+          return;
+        }
+
+
+        processCode(
+          decodedText
+        );
+      },
+
+      () => {
+        /*
+         * Ignore normal scan misses.
+         */
+      }
+    );
+
+
+    cameraStarted =
+      true;
+
+
+    document.getElementById(
+      'startCameraButton'
+    ).classList.add(
+      'hidden'
+    );
+
+
+  } catch (error) {
+
+    alert(
+      'Camera could not start. Make sure camera permission is allowed for this website.'
+    );
+  }
+}
+
+
+/*
+ * Send scanned/manual code
+ * to Apps Script.
+ */
+function processCode(
+  value
+) {
+
+  if (busy) {
+    return;
+  }
+
+
+  if (
+    !attendanceOpen
+  ) {
+
+    showResult(
+      false,
+      'Attendance is closed.'
+    );
+
+    return;
+  }
+
+
+  const code =
+    String(
+      value || ''
+    )
+      .trim()
+      .toUpperCase();
+
+
+  if (!code) {
+    return;
+  }
+
+
+  busy =
+    true;
+
+
+  const requestId =
+    ++requestCounter;
+
+
+  const sent =
+    sendToBridge({
+      type:
+        'STUDENT_CHECKIN',
+
+      requestId:
+        requestId,
+
+      code:
+        code
+    });
+
+
+  if (!sent) {
+
+    busy =
+      false;
+
+    showResult(
+      false,
+      'Unable to connect to attendance.'
+    );
+  }
+}
+
+
+/*
+ * Manual numeric fallback.
+ */
+function manualCheckIn() {
+
+  const input =
+    document.getElementById(
+      'manualCode'
+    );
+
+
+  const code =
+    input.value.replace(
+      /\D/g,
+      ''
+    );
+
+
+  input.value =
+    '';
+
+
+  processCode(
+    code
+  );
+}
+
+
+/*
+ * Success/error display.
+ */
+function showResult(
+  successful,
+  message
+) {
+
+  const overlay =
+    document.getElementById(
+      'resultOverlay'
+    );
+
+
+  const box =
+    document.getElementById(
+      'resultBox'
+    );
+
+
+  const icon =
+    document.getElementById(
+      'resultIcon'
+    );
+
+
+  const text =
+    document.getElementById(
+      'resultMessage'
+    );
+
+
+  box.className =
+    successful
+      ? 'result-box success'
+      : 'result-box error';
+
+
+  icon.textContent =
+    successful
+      ? '✓'
+      : '✕';
+
+
+  text.textContent =
+    message;
+
+
+  overlay.classList.remove(
+    'hidden'
+  );
+
+
+  /*
+   * Prevent the camera from repeatedly
+   * scanning the same card while the
+   * result is being shown.
+   */
+  setTimeout(
+    () => {
+
+      overlay.classList.add(
+        'hidden'
+      );
+
+      busy =
+        false;
+
+    },
+
+    successful
+      ? 900
+      : 1300
+  );
+}
+
+
+/*
+ * Numeric fallback stays numeric.
+ */
+document.getElementById(
+  'manualCode'
+).addEventListener(
+  'input',
+  event => {
+
+    event.target.value =
+      event.target.value.replace(
+        /\D/g,
+        ''
+      );
+  }
+);
+
+
+document.getElementById(
+  'manualCode'
+).addEventListener(
+  'keydown',
+  event => {
+
+    if (
+      event.key ===
+      'Enter'
+    ) {
+
+      event.preventDefault();
+
+      manualCheckIn();
+    }
+  }
+);
+
+
+/*
+ * Refresh open/closed state.
+ */
+setInterval(
+  checkAttendanceStatus,
+  3000
+);
+
+</script>
+
+</body>
+</html>
